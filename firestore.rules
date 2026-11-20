@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() { return request.auth != null; }
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+    function isAllowedWorkspaceUser() {
+      return isAdmin() || isWhitelistedEmail();
+    }
+    function isValidColumnColorValue(color) {
+      return color in ['slate', 'amber', 'red', 'emerald', 'blue', 'violet']
+        || (color is string && color.size() == 7 && color.matches('^#[0-9a-fA-F]{6}$'));
+    }
+  }
+}
